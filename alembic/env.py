@@ -5,9 +5,18 @@ from sqlalchemy import pool
 
 from alembic import context
 
+from dotenv import load_dotenv
+import os
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
+load_dotenv()
+
+ALEMBIC_DATABASE_URL = os.getenv("ALEMBIC_DATABASE_URL")
 config = context.config
+
+if ALEMBIC_DATABASE_URL:
+    config.set_main_option("sqlalchemy.url", ALEMBIC_DATABASE_URL)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -19,7 +28,7 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 import sys
-import os
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.models import Base
