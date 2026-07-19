@@ -41,9 +41,9 @@ def decode_access_token(token: str) -> Optional[int]:
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from database import get_session
-from models import User
+
+from app.database import get_session
+from app.models import User
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
