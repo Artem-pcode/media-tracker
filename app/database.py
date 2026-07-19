@@ -1,6 +1,12 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+from dotenv import load_dotenv
+import os
 
-DATABASE_URL = "postgresql+asyncpg://postgres:temafps228@localhost:5432/media_tracker"
+load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL не задан в переменных окружения!")
 
 engine = create_async_engine(DATABASE_URL, echo=True)
 
