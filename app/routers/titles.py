@@ -1,12 +1,14 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from typing import List, Optional
+from typing import List, Optional, Dict
+import json
 
 from app.auth import get_current_user
 from app.database import get_session
 from app.models import Title, User
 from app.schemas import TitleCreate, TitleResponse
+from app.cache import redis_client, invalidate_titles_cache
 
 router = APIRouter(prefix="/titles", tags=["titles"])
 
@@ -14,12 +16,22 @@ router = APIRouter(prefix="/titles", tags=["titles"])
 async def list_titles(
     content_type: Optional[str] = None,
     session: AsyncSession = Depends(get_session)
-) -> List[Title]:
+) -> List[Dict]:
+    cache_key = f"titles:{content_type or 'all'}"
+
+    cache_data = await redis_client.get(cache_key)
+    if cache_data is not None:
+        return json.loads(cache_data)
+    
     query = select(Title)
     if content_type is not None:
         query = query.where(Title.type == content_type)
     result = await session.execute(query)
-    return result.scalars().all()
+    titles = result.scalars().all()
+
+    title_list = [TitleResponse.model_validate(t).model_dump() for t in titles]
+    await redis_client.set(cache_key, json.dumps(title_list), ex=60)
+    return title_list
 
 
 @router.get("/search", response_model=List[TitleResponse])
@@ -50,9 +62,13 @@ async def create_titles(
     current_user: User = Depends(get_current_user)
 ) -> Title:
     new_title = Title(name=title.name, type=title.content_type, year=title.year)
+    
     session.add(new_title)
     await session.commit()
     await session.refresh(new_title)
+
+    await invalidate_titles_cache([f"titles:{title.content_type}"])
+
     return new_title
 
 
@@ -66,9 +82,15 @@ async def update_title(
     cur_title = await session.get(Title, title_id)
     if cur_title is None:
         raise HTTPException(status_code=404, detail="Title not found")
+    
+    orig_type = cur_title.type
     cur_title.name = title.name
     cur_title.type = title.content_type
     cur_title.year = title.year
+
     await session.commit()
     await session.refresh(cur_title)
+
+    await invalidate_titles_cache([f"titles:{orig_type}", f"titles:{title.content_type}"])
+
     return cur_title

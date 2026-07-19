@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -11,9 +11,17 @@ from app.database import get_session
 
 router = APIRouter(tags=["/users"])
 
+def send_welcome_email(email: str):
+    print(f"Sending mail on {email}")
+    import time
+    time.sleep(2)
+    print(f"Mail has been sent on {email}")
+
+
 @router.post("/register", response_model=UserResponse, status_code=201)
 async def registration(
     user_data: UserCreate,
+    background_tasks: BackgroundTasks,
     session: AsyncSession = Depends(get_session)
 ) -> User:
     existing = await session.execute(select(User).where(User.email == user_data.email))
@@ -27,6 +35,9 @@ async def registration(
     session.add(new_user)
     await session.commit()
     await session.refresh(new_user)
+
+    background_tasks.add_task(send_welcome_email, new_user.email)
+
     return new_user
 
 
