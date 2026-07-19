@@ -2,7 +2,7 @@ services:
   db:
     image: postgres:16
     environment:
-      POSGRES_USER: ${DB_USER}
+      POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
     ports:
@@ -15,6 +15,11 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
   app:
     build: .
     ports:
@@ -23,9 +28,12 @@ services:
       DATABASE_URL: postgresql+asyncpg://${DB_USER}:${DB_PASSWORD}@db:${DB_PORT}/${DB_NAME}
       ALEMBIC_DATABASE_URL: postgresql+psycopg2://${DB_USER}:${DB_PASSWORD}@db:${DB_PORT}/${DB_NAME}
       SECRET_KEY: ${SECRET_KEY}
+      REDIS_URL: redis://redis:6379/0
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
 
 volumes:
   postgres_data:
