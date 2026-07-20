@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Literal
 
 class TitleCreate(BaseModel):
@@ -12,8 +12,7 @@ class TitleResponse(BaseModel):
     type: str
     year: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class UserCreate(BaseModel):
     email: str
@@ -23,5 +22,4 @@ class UserResponse(BaseModel):
     id: int
     email: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
