@@ -1,13 +1,13 @@
 # MediaTracker API
 
-Backend сервис для трекинга фильмов, сериалов и аниме - REST API на FastAPI с аутентификация, кэшированием и частичным тестированием.
+Backend сервис для трекинга фильмов, сериалов и аниме - REST API на FastAPI с аутентификацией, кэшированием и частичным тестированием.
 
 **Deploy-версия**: https://media-tracker-27zw.onrender.com/docs
 
 ## Стек
 
  - **Backend**: FastAPI, Python 3.10, asyncio
-  - **База данных**: PostgreSQL, SQLAchemy (async), Alembic
+  - **База данных**: PostgreSQL, SQLAlchemy (async), Alembic
   - **Аутентификация**: JWT, bcrypt
   - **Кэширование**: Redis (cache-aside pattern)
   - **Инфраструктура**: Docker, docker-compose
