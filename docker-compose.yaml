@@ -42,7 +42,7 @@ services:
       ALEMBIC_DATABASE_URL: postgresql+psycopg2://${DB_USER}:${DB_PASSWORD}@db:${DB_PORT}/${DB_NAME}
       TEST_DATABASE_URL: postgresql+asyncpg://${DB_USER}:${DB_PASSWORD}@test_db:5432/${DB_NAME}_test
       SECRET_KEY: ${SECRET_KEY}
-      REDIS_URL: redis://redis:6379/0
+      REDIS_URL: redis://${REDIS}:${REDIS_PORT}/0
     depends_on:
       db:
         condition: service_healthy
