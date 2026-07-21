@@ -30,12 +30,12 @@ Backend сервис для трекинга фильмов, сериалов и
 
 ## Запуск локально
 
-\`\`\`bash
+```bash
 git clone https://github.com/Artem-pcode/media-tracker.git
 cd media-tracker
 cp .env.example .env  # заполнить своими значениями
 docker-compose up --build
-\`\`\`
+```
 
 API будет доступен на `http://localhost:8000/docs`
 
